@@ -1,18 +1,11 @@
-version: '3.8'
 services:
   wordpress:
-    # cpus: 10
-    # mem_limit: 4g
-    # cpu_shares: 1024
     image: mywp6.7.2-php8.1-apache-fa:1.0.0
+    restart: always
     ports:
       - 8999:80
-    volumes:
-      - ./wordpress1:/var/www/html
-    dns:
-    - 185.51.200.2
-    - 178.22.122.100
-    restart: always
+    # volumes:
+    #   - ./wordpress1:/var/www/html
     environment:
       - WORDPRESS_DB_HOST=db
       - WORDPRESS_DB_USER=wordpress
@@ -20,12 +13,11 @@ services:
       - WORDPRESS_DB_NAME=wordpress
     depends_on:
       - db
+    networks:
+      - wp-network
+
   db:
-    
     image: mysql
-    command: '--default-authentication-plugin=mysql_native_password'
-    # volumes:
-    #   - ./mysql:/var/lib/mysql
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=somewordpress
@@ -34,8 +26,9 @@ services:
       - MYSQL_PASSWORD=wordpress    
     expose:
       - 3306
-      - 33060
-      
+    networks:
+      - wp-network
+
   phpmyadmin:
     image: phpmyadmin
     restart: always
@@ -43,3 +36,12 @@ services:
       - 8082:80
     environment:
       - PMA_ARBITRARY=1
+      - PMA_HOST=db
+    depends_on:
+      - db
+    networks:
+      - wp-network
+
+networks:
+  wp-network:
+    driver: bridge
