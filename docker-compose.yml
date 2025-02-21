@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  wordpress:
+    # cpus: 10
+    # mem_limit: 4g
+    # cpu_shares: 1024
+    image: mywp6.7.2-php8.1-apache-fa:1.0.0
+    ports:
+      - 8999:80
+    volumes:
+      - ./wordpress1:/var/www/html
+    dns:
+    - 185.51.200.2
+    - 178.22.122.100
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
+    depends_on:
+      - db
+  db:
+    
+    image: mysql
+    command: '--default-authentication-plugin=mysql_native_password'
+    # volumes:
+    #   - ./mysql:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=somewordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress    
+    expose:
+      - 3306
+      - 33060
+      
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8082:80
+    environment:
+      - PMA_ARBITRARY=1
